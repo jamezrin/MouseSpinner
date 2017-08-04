@@ -5,8 +5,6 @@
 #include <Windows.h>
 #include <iostream>
 
-#define PRECISION 10
-
 enum Direction
 {
 	NONE,
@@ -14,8 +12,9 @@ enum Direction
 	RIGHT
 } direction;
 
-unsigned int speed = 1;
+uint32_t speed = 1;
 int moved = 0;
+int screenWidth;
 
 DWORD WINAPI move_func(LPVOID lpParameter)
 {
@@ -37,12 +36,14 @@ DWORD WINAPI move_func(LPVOID lpParameter)
 	}
 
 	printf("Going back %d pixels\n", -moved);
-	int width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-	if (moved >= 1080)
+
+	//fix this, virtual screen resolution does not seem to work
+	if (abs(moved) >= screenWidth)
 	{
-		moved = moved % 1080;
+		moved %= screenWidth;
 	}
 
+	printf("Actual parameter: %d", -moved);
 	mouse_event(MOUSEEVENTF_MOVE, -moved, 0, 0, 0);
 	moved = 0;
 	return 0;
@@ -50,9 +51,7 @@ DWORD WINAPI move_func(LPVOID lpParameter)
 
 int main()
 {
-	int width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-	int height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
-	printf("width: %d, height: %d", width, height);
+	screenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
 
 	//FreeConsole();
 	while (true)
